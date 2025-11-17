@@ -6,7 +6,7 @@ Prediction with Supervised Learning Models
 Installation
 
 1. git clone https://github.com/wikadm/NAEC.git
-2. cd NAEC
+2. cd NAEC \n
 ##install prerequistes
 3. pip install -r requirements.txt
 ###run the script
