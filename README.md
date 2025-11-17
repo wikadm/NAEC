@@ -13,6 +13,8 @@ Installation
 
 
 3. pip install -r requirements.txt
+
 ###run the script
+
 
 4. python main.py 
