@@ -58,3 +58,36 @@ X_train_val, X_test, y_train_val, y_test = train_test_split(
 
 print(f"Training set: {X_train_val.shape[0]} samples")
 print(f"Test set: {X_test.shape[0]} samples")
+
+
+#########################################################################
+######PART 2: DHYPERPARAMETER COMPARISON
+#########################################################################
+
+def calculate_metrics(y_true, y_pred, scaler_y):
+    y_true_orig = scaler_y.inverse_transform(y_true.reshape(-1, 1)).ravel()
+    y_pred_orig = scaler_y.inverse_transform(y_pred.reshape(-1, 1)).ravel()
+
+    mse = mean_squared_error(y_true_orig, y_pred_orig)
+    mae = mean_absolute_error(y_true_orig, y_pred_orig)
+    mape = np.mean(np.abs((y_true_orig - y_pred_orig) / (y_true_orig + 1e-10))) * 100
+
+    return mse, mae, mape
+
+print("\nTesting 10 hyperparameter configurations...")
+print("(This will take a few minutes)\n")
+
+configurations = [
+    # layers, epochs, learning_rate, momentum, activation
+    [[10, 20, 1], 100, 0.01, 0.9, 'sigmoid'],
+    [[10, 30, 1], 100, 0.01, 0.9, 'sigmoid'],
+    [[10, 20, 10, 1], 100, 0.01, 0.9, 'sigmoid'],
+    [[10, 50, 1], 100, 0.005, 0.9, 'tanh'],
+    [[10, 30, 1], 150, 0.01, 0.8, 'tanh'],
+    [[10, 25, 1], 100, 0.02, 0.85, 'relu'],
+    [[10, 50, 25, 1], 150, 0.001, 0.95, 'relu'],
+    [[10, 100, 50, 1], 150, 0.001, 0.9, 'sigmoid'],
+    [[10, 64, 32, 1], 200, 0.005, 0.9, 'tanh'],
+    [[10, 40, 20, 1], 150, 0.005, 0.9, 'tanh'],
+]
+
