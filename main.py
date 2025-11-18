@@ -90,4 +90,11 @@ configurations = [
     [[10, 64, 32, 1], 200, 0.005, 0.9, 'tanh'],
     [[10, 40, 20, 1], 150, 0.005, 0.9, 'tanh'],
 ]
+results = []
+best_mse = float('inf')
+best_model = None
+best_pred = None
 
+for i, (layers, epochs, lr, momentum, activation) in enumerate(configurations):
+    print(f"Config {i+1}/10: Layers={layers}, Epochs={epochs}, LR={lr}, Act={activation}")
+    
