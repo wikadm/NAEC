@@ -97,4 +97,10 @@ best_pred = None
 
 for i, (layers, epochs, lr, momentum, activation) in enumerate(configurations):
     print(f"Config {i+1}/10: Layers={layers}, Epochs={epochs}, LR={lr}, Act={activation}")
-    
+
+
+# Train model
+
+
+
+
