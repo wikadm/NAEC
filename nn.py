@@ -56,3 +56,27 @@ class NeuralNet:
         # Store loss history
         self.train_loss_history = []
         self.val_loss_history = []
+
+        def _initialize_weights(self):
+        """Initialize weights and thresholds with random small values."""
+        for l in range(1, self.L):
+            # Xavier/He initialization
+            if self.fact == 'relu':
+                # He initialization for ReLU
+                limit = np.sqrt(2.0 / self.n[l-1])
+            else:
+                # Xavier initialization for sigmoid/tanh
+                limit = np.sqrt(6.0 / (self.n[l-1] + self.n[l]))
+
+            # Initialize weights: w[l] has shape (n[l], n[l-1])
+            self.w[l] = np.random.uniform(-limit, limit, (self.n[l], self.n[l-1]))
+
+            # Initialize thresholds
+            self.theta[l] = np.zeros(self.n[l])
+
+            # Initialize change matrices for momentum
+            self.d_w_prev[l] = np.zeros_like(self.w[l])
+            self.d_theta_prev[l] = np.zeros_like(self.theta[l])
+
+
+
