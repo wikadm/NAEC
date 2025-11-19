@@ -78,5 +78,17 @@ class NeuralNet:
             self.d_w_prev[l] = np.zeros_like(self.w[l])
             self.d_theta_prev[l] = np.zeros_like(self.theta[l])
 
-
+           def _activation_function(self, x: np.ndarray) -> np.ndarray:
+        """Apply activation function."""
+        if self.fact == 'sigmoid':
+            return 1.0 / (1.0 + np.exp(-np.clip(x, -500, 500)))
+        elif self.fact == 'relu':
+            return np.maximum(0, x)
+        elif self.fact == 'tanh':
+            return np.tanh(x)
+        elif self.fact == 'linear':
+            return x
+        else:
+            raise ValueError(f"Unknown activation function: {self.fact}")
+            
 
