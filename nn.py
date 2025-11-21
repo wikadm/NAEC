@@ -173,4 +173,77 @@ class NeuralNet:
             # Store for next iteration
             self.d_w_prev[l] = self.d_w[l].copy()
             self.d_theta_prev[l] = self.d_theta[l].copy()
-    
+    def fit(self, X: np.ndarray, y: np.ndarray):
+        """
+        Train the neural network.
+        
+        Parameters:
+        -----------
+        X : np.ndarray
+            Training data of shape (n_samples, n_features)
+        y : np.ndarray
+            Target values of shape (n_samples,)
+        """
+        # Split data into training and validation if needed
+        n_samples = X.shape[0]
+        
+        if self.validation_split > 0:
+            n_val = int(n_samples * self.validation_split)
+            indices = np.random.permutation(n_samples)
+            
+            val_idx = indices[:n_val]
+            train_idx = indices[n_val:]
+            
+            X_train, X_val = X[train_idx], X[val_idx]
+            y_train, y_val = y[train_idx], y[val_idx]
+        else:
+            X_train, y_train = X, y
+            X_val, y_val = None, None
+            
+        # Initialize arrays for changes
+        for l in range(1, self.L):
+            self.d_w[l] = np.zeros_like(self.w[l])
+            self.d_theta[l] = np.zeros_like(self.theta[l])
+            
+        # Training loop
+        for epoch in range(self.epochs):
+            # Shuffle training data
+            indices = np.random.permutation(len(X_train))
+            X_train_shuffled = X_train[indices]
+            y_train_shuffled = y_train[indices]
+            
+            # Train on each sample
+            train_errors = []
+            for i in range(len(X_train)):
+                # Forward propagation
+                output = self._forward_propagation(X_train_shuffled[i])
+                
+                # Backward propagation
+                self._backward_propagation(y_train_shuffled[i])
+                
+                # Update weights
+                self._update_weights()
+                
+                # Store error
+                train_errors.append((output[0] - y_train_shuffled[i]) ** 2)
+                
+            # Calculate epoch losses
+            train_loss = np.mean(train_errors)
+            self.train_loss_history.append(train_loss)
+            
+            # Validation loss
+            if X_val is not None:
+                val_predictions = self.predict(X_val)
+                val_loss = np.mean((val_predictions - y_val) ** 2)
+                self.val_loss_history.append(val_loss)
+            else:
+                self.val_loss_history.append(0)
+                
+            # Print progress every 10 epochs
+            if epoch % 10 == 0:
+                if X_val is not None:
+                    print(f"Epoch {epoch}/{self.epochs} - Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}")
+                else:
+                    print(f"Epoch {epoch}/{self.epochs} - Train Loss: {train_loss:.6f}")
+                    
+
