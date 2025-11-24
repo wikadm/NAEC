@@ -245,5 +245,35 @@ class NeuralNet:
                     print(f"Epoch {epoch}/{self.epochs} - Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}")
                 else:
                     print(f"Epoch {epoch}/{self.epochs} - Train Loss: {train_loss:.6f}")
-                    
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Make predictions.
+        
+        Parameters:
+        -----------
+        X : np.ndarray
+            Input data of shape (n_samples, n_features)
+            
+        Returns:
+        --------
+        np.ndarray
+            Predictions of shape (n_samples,)
+        """
+        predictions = []
+        for i in range(X.shape[0]):
+            output = self._forward_propagation(X[i])
+            predictions.append(output[0])
+        return np.array(predictions)
+    
+    def loss_epochs(self) -> np.ndarray:
+        """
+        Return the loss history.
+        
+        Returns:
+        --------
+        np.ndarray
+            Array of shape (n_epochs, 2) containing training and validation losses
+        """
+        return np.column_stack((self.train_loss_history, self.val_loss_history))               
+
 
