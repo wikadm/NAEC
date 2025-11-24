@@ -100,7 +100,49 @@ for i, (layers, epochs, lr, momentum, activation) in enumerate(configurations):
 
 
 # Train model
+nn = NeuralNet(
+        layers=layers,
+        epochs=epochs,
+        learning_rate=lr,
+        momentum=momentum,
+        activation=activation,
+        validation_split=0.2
+    )
+    
+    nn.fit(X_train_val, y_train_val)
+    y_pred = nn.predict(X_test)
+    
+    # Calculate metrics
+    mse, mae, mape = calculate_metrics(y_test, y_pred, scaler_y)
+    
+    results.append({
+        'Config': i+1,
+        'Layers': '-'.join(map(str, layers)),
+        'Epochs': epochs,
+        'LR': lr,
+        'Momentum': momentum,
+        'Activation': activation,
+        'MSE': mse,
+        'MAE': mae,
+        'MAPE': mape
+    })
+    
+    print(f"  MSE={mse:.4f}, MAE={mae:.4f}, MAPE={mape:.2f}%")
+    
+    # Keep best model
+    if mse < best_mse:
+        best_mse = mse
+        best_model = nn
+        best_pred = y_pred
+        best_config = i+1
 
+# Display results table
+print("\n" + "="*80)
+print("HYPERPARAMETER COMPARISON TABLE")
+print("="*80)
+results_df = pd.DataFrame(results)
+print(results_df.to_string(index=False))
+print(f"\nBest Configuration: #{best_config} with MSE={best_mse:.4f}")
 
 
 
