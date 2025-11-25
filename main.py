@@ -3,12 +3,16 @@ Neural and Evolutionary Computation - Activity 1
 """
 import numpy as np
 import pandas as pd
+###
+from typing import Tuple, List, Optional
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+##missing
+from sklearn.datasets import fetch_california_housing
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -98,9 +102,9 @@ best_pred = None
 for i, (layers, epochs, lr, momentum, activation) in enumerate(configurations):
     print(f"Config {i+1}/10: Layers={layers}, Epochs={epochs}, LR={lr}, Act={activation}")
 
-
-# Train model
-nn = NeuralNet(
+    # Train model
+    # (Notice 'nn' starts at the same indentation level as 'print')
+    nn = NeuralNet(
         layers=layers,
         epochs=epochs,
         learning_rate=lr,
@@ -109,6 +113,7 @@ nn = NeuralNet(
         validation_split=0.2
     )
     
+    # ERROR WAS HERE: These lines must align with 'nn = ...'
     nn.fit(X_train_val, y_train_val)
     y_pred = nn.predict(X_test)
     
