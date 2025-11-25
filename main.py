@@ -103,7 +103,6 @@ for i, (layers, epochs, lr, momentum, activation) in enumerate(configurations):
     print(f"Config {i+1}/10: Layers={layers}, Epochs={epochs}, LR={lr}, Act={activation}")
 
     # Train model
-    # (Notice 'nn' starts at the same indentation level as 'print')
     nn = NeuralNet(
         layers=layers,
         epochs=epochs,
@@ -113,7 +112,6 @@ for i, (layers, epochs, lr, momentum, activation) in enumerate(configurations):
         validation_split=0.2
     )
     
-    # ERROR WAS HERE: These lines must align with 'nn = ...'
     nn.fit(X_train_val, y_train_val)
     y_pred = nn.predict(X_test)
     
