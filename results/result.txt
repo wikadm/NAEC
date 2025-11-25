@@ -1,0 +1,58 @@
+================================================================================
+HYPERPARAMETER COMPARISON TABLE
+================================================================================
+ Config      Layers  Epochs    LR  Momentum Activation      MSE      MAE      MAPE
+      1     10-20-1     100 0.010      0.90    sigmoid 0.328024 0.384429 21.365712
+      2     10-30-1     100 0.010      0.90    sigmoid 0.324292 0.386101 20.868308
+      3  10-20-10-1     100 0.010      0.90    sigmoid 0.355822 0.468348 32.028402
+      4     10-50-1     100 0.005      0.90       tanh 0.400666 0.452400 26.833421
+      5     10-30-1     150 0.010      0.80       tanh 0.337188 0.398051 23.259161
+      6     10-25-1     100 0.020      0.85       relu 2.604540 0.997186 75.688432
+      7  10-50-25-1     150 0.001      0.95       relu 1.321840 0.884760 58.101304
+      8 10-100-50-1     150 0.001      0.90    sigmoid 0.292237 0.370200 21.291470
+      9  10-64-32-1     200 0.005      0.90       tanh 0.386755 0.467163 30.764290
+     10  10-40-20-1     150 0.005      0.90       tanh 0.313448 0.398995 24.401990
+
+Best Configuration: #8 with MSE=0.2922
+
+================================================================================
+PART 3.2: MODEL COMPARISON
+----------------------------------------
+
+1. Custom Neural Network (BP):
+   MSE=0.2922, MAE=0.3702, MAPE=21.29%
+
+2. Linear Regression (MLR-F):
+   MSE=0.5508, MAE=0.5326, MAPE=31.88%
+
+3. PyTorch Neural Network (BP-F):
+   Training PyTorch model...
+   Epoch 0, Loss: 1.037170
+   Epoch 50, Loss: 0.468059
+   Epoch 100, Loss: 0.346794
+   MSE=0.4555, MAE=0.4822, MAPE=28.42%
+
+================================================================================
+FINAL MODEL COMPARISON
+================================================================================
+          Model      MSE      MAE  MAPE (%)
+    BP (Custom) 0.292237 0.370200 21.291470
+ BP-F (PyTorch) 0.455472 0.482214 28.420052
+MLR-F (Sklearn) 0.550839 0.532618 31.878361
+
+Generating scatter plots...
+
+Generating loss evolution plot...
+
+================================================================================
+ACTIVITY COMPLETED!
+================================================================================
+
+Generated files:
+- model_comparison.png: Scatter plots comparing all models
+- loss_evolution.png: Training/validation loss for best model
+
+Key Results:
+- Best Custom NN: MSE=0.2922
+- Linear Regression: MSE=0.5508
+- PyTorch NN: MSE=0.4555
