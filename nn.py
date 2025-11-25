@@ -57,7 +57,7 @@ class NeuralNet:
         self.train_loss_history = []
         self.val_loss_history = []
 
-        def _initialize_weights(self):
+    def _initialize_weights(self):
         """Initialize weights and thresholds with random small values."""
         for l in range(1, self.L):
             # Xavier/He initialization
@@ -78,7 +78,7 @@ class NeuralNet:
             self.d_w_prev[l] = np.zeros_like(self.w[l])
             self.d_theta_prev[l] = np.zeros_like(self.theta[l])
 
-        def _activation_function(self, x: np.ndarray) -> np.ndarray:
+    def _activation_function(self, x: np.ndarray) -> np.ndarray:
         """Apply activation function."""
         if self.fact == 'sigmoid':
             return 1.0 / (1.0 + np.exp(-np.clip(x, -500, 500)))
@@ -91,7 +91,7 @@ class NeuralNet:
         else:
             raise ValueError(f"Unknown activation function: {self.fact}")
             
-        def _activation_derivative(self, x: np.ndarray) -> np.ndarray:
+    def _activation_derivative(self, x: np.ndarray) -> np.ndarray:
         """Compute derivative of activation function."""
         if self.fact == 'sigmoid':
             sig = self._activation_function(x)
@@ -127,6 +127,9 @@ class NeuralNet:
             # Calculate fields: h[l] = w[l] @ xi[l-1] - theta[l]
             self.h[l] = np.dot(self.w[l], self.xi[l-1]) - self.theta[l]
             
+            # Clip to prevent overflow
+            self.h[l] = np.clip(self.h[l], -500, 500)
+            
             # Apply activation function (linear for output layer in regression)
             if l == self.L - 1:  # Output layer for regression
                 self.xi[l] = self.h[l]  # Linear activation for regression
@@ -150,10 +153,16 @@ class NeuralNet:
         # For regression with linear output
         self.delta[self.L - 1] = np.array([output[0] - y_true])
         
+        # Clip output delta to prevent exploding gradients
+        self.delta[self.L - 1] = np.clip(self.delta[self.L - 1], -10, 10)
+        
         # Backpropagate errors
         for l in range(self.L - 2, 0, -1):
             # delta[l] = activation_derivative(h[l]) * (w[l+1].T @ delta[l+1])
             self.delta[l] = self._activation_derivative(self.h[l]) * np.dot(self.w[l+1].T, self.delta[l+1])
+            
+            # Clip deltas to prevent exploding gradients
+            self.delta[l] = np.clip(self.delta[l], -10, 10)
             
     def _update_weights(self):
         """Update weights and thresholds using gradient descent with momentum."""
@@ -166,9 +175,21 @@ class NeuralNet:
             self.d_w[l] += self.momentum * self.d_w_prev[l]
             self.d_theta[l] += self.momentum * self.d_theta_prev[l]
             
+            # Gradient clipping to prevent exploding gradients
+            max_grad = 5.0
+            self.d_w[l] = np.clip(self.d_w[l], -max_grad, max_grad)
+            self.d_theta[l] = np.clip(self.d_theta[l], -max_grad, max_grad)
+            
             # Update weights and thresholds
             self.w[l] += self.d_w[l]
             self.theta[l] += self.d_theta[l]
+            
+            # Check for NaN or Inf
+            if np.any(np.isnan(self.w[l])) or np.any(np.isinf(self.w[l])):
+                # Reset to small random values
+                limit = 0.01
+                self.w[l] = np.random.uniform(-limit, limit, self.w[l].shape)
+                self.theta[l] = np.zeros(self.n[l])
             
             # Store for next iteration
             self.d_w_prev[l] = self.d_w[l].copy()
@@ -214,9 +235,15 @@ class NeuralNet:
             
             # Train on each sample
             train_errors = []
+            nan_detected = False
             for i in range(len(X_train)):
                 # Forward propagation
                 output = self._forward_propagation(X_train_shuffled[i])
+                
+                # Check for NaN
+                if np.isnan(output[0]) or np.isinf(output[0]):
+                    nan_detected = True
+                    break
                 
                 # Backward propagation
                 self._backward_propagation(y_train_shuffled[i])
@@ -226,9 +253,19 @@ class NeuralNet:
                 
                 # Store error
                 train_errors.append((output[0] - y_train_shuffled[i]) ** 2)
+            
+            # If NaN detected, stop training
+            if nan_detected:
+                print(f"  Warning: NaN detected at epoch {epoch}. Stopping training early.")
+                # Fill remaining epochs with current loss
+                remaining = self.epochs - epoch
+                for _ in range(remaining):
+                    self.train_loss_history.append(self.train_loss_history[-1] if self.train_loss_history else float('inf'))
+                    self.val_loss_history.append(self.val_loss_history[-1] if self.val_loss_history else float('inf'))
+                break
                 
             # Calculate epoch losses
-            train_loss = np.mean(train_errors)
+            train_loss = np.mean(train_errors) if train_errors else float('inf')
             self.train_loss_history.append(train_loss)
             
             # Validation loss
@@ -262,7 +299,11 @@ class NeuralNet:
         predictions = []
         for i in range(X.shape[0]):
             output = self._forward_propagation(X[i])
-            predictions.append(output[0])
+            # Handle NaN predictions
+            if np.isnan(output[0]) or np.isinf(output[0]):
+                predictions.append(0.0)
+            else:
+                predictions.append(output[0])
         return np.array(predictions)
     
     def loss_epochs(self) -> np.ndarray:
@@ -274,6 +315,4 @@ class NeuralNet:
         np.ndarray
             Array of shape (n_epochs, 2) containing training and validation losses
         """
-        return np.column_stack((self.train_loss_history, self.val_loss_history))               
-
-
+        return np.column_stack((self.train_loss_history, self.val_loss_history))
